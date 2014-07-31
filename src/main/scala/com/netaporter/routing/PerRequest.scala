@@ -18,7 +18,7 @@ trait PerRequest extends Actor with Json4sSupport {
 
   val json4sFormats = DefaultFormats
 
-  def r: RequestContext
+  def requestContext: RequestContext
   def target: ActorRef
   def message: RestMessage
 
@@ -26,13 +26,13 @@ trait PerRequest extends Actor with Json4sSupport {
   target ! message
 
   def receive = {
-    case res: RestMessage => complete(OK, res)
-    case v: Validation    => complete(BadRequest, v)
+    case result: RestMessage => complete(OK, result)
+    case validation: Validation    => complete(BadRequest, validation)
     case ReceiveTimeout   => complete(GatewayTimeout, Error("Request timeout"))
   }
 
   def complete[T <: AnyRef](status: StatusCode, obj: T) = {
-    r.complete(status, obj)
+    requestContext.complete(status, obj)
     stop(self)
   }
 
@@ -46,9 +46,9 @@ trait PerRequest extends Actor with Json4sSupport {
 }
 
 object PerRequest {
-  case class WithActorRef(r: RequestContext, target: ActorRef, message: RestMessage) extends PerRequest
+  case class WithActorRef(requestContext: RequestContext, target: ActorRef, message: RestMessage) extends PerRequest
 
-  case class WithProps(r: RequestContext, props: Props, message: RestMessage) extends PerRequest {
+  case class WithProps(requestContext: RequestContext, props: Props, message: RestMessage) extends PerRequest {
     lazy val target = context.actorOf(props)
   }
 }

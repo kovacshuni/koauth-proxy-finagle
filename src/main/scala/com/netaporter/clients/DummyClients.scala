@@ -1,6 +1,8 @@
 package com.netaporter.clients
 
 import akka.actor.Actor
+import com.hunorkovacs.koauth.domain.KoauthRequest
+import com.hunorkovacs.koauth.service.provider.ProviderServiceFactory
 import com.netaporter._
 import com.netaporter.clients.PetClient._
 import com.netaporter.clients.OwnerClient._
@@ -12,13 +14,23 @@ import com.netaporter.clients.OwnerClient._
  *  - anything else that requires IO
  */
 class PetClient extends Actor {
+
+  implicit val ec = context.dispatcher
+  implicit val pers = new InMemoryPersistence()
+
   def receive = {
-    case GetPets("Lion" :: _)     => sender ! Validation("Lions are too dangerous!")
+    case GetPets("Lion" :: _)     => {
+      oauthService.requestToken(KoauthRequest("", "", "", List.empty, List.empty))
+      sender ! Validation("Lions are too dangerous!")
+    }
+
     case GetPets("Tortoise" :: _) => () // Never send a response. Tortoises are too slow
     case GetPets(petNames)        => sender ! Pets(petNames.map(Pet.apply))
   }
 }
 object PetClient {
+  val oauthService = ProviderServiceFactory.createDefaultOauthService
+
   case class GetPets(petNames: List[String])
   case class Pets(pets: Seq[Pet])
 }

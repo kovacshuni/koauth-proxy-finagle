@@ -1,11 +1,11 @@
-package com.netaporter
+package com.hunorkovacs.koauthproxyfinagle
 
 import java.util.Date
 
 import com.hunorkovacs.koauth.service.provider.Persistence
 
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
 class InMemoryPersistence extends Persistence {
 

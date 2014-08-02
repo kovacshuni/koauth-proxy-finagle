@@ -7,7 +7,7 @@ import com.hunorkovacs.koauth.service.provider.Persistence
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
-class InMemoryPersistence extends Persistence {
+class InMemoryPersistence(implicit val ec: ExecutionContext) extends Persistence {
 
   val consumers = ListBuffer[Consumer](
     Consumer("OmFjJKNqU4v791CWj6QKaBaiEep0WBxJ", "wr1KLYYH6o5yKFfiyN9ysKkPXcIAim2S", 0, "admin")
@@ -51,7 +51,7 @@ class InMemoryPersistence extends Persistence {
     }
   }
 
-  override def whoAuthorizedRequesToken(consumerKey: String, requestToken: String, verifier: String)
+  override def whoAuthorizedRequestToken(consumerKey: String, requestToken: String, verifier: String)
                                        (implicit ec: ExecutionContext): Future[Option[String]] = {
     Future {
       requestTokens.find(p => consumerKey == p.consumerKey && requestToken == p.requestToken) match {

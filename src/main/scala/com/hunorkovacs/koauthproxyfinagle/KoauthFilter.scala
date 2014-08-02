@@ -1,7 +1,7 @@
 package com.hunorkovacs.koauthproxyfinagle
 
-import com.hunorkovacs.koauth.service.provider.{ProviderServiceFactory, Persistence}
-import com.hunorkovacs.koauthproxyfinagle.persistence.InMemoryPersistence
+import com.hunorkovacs.koauth.service.provider.persistence.{Persistence, ExampleMemoryPersistence}
+import com.hunorkovacs.koauth.service.provider.ProviderServiceFactory
 import com.twitter.finagle.{Service, Filter}
 import com.twitter.util.{Promise, Future}
 import org.jboss.netty.handler.codec.http.{HttpResponse, HttpRequest}
@@ -13,7 +13,7 @@ trait SimpleFilter[Req, Rep] extends Filter[Req, Rep, Req, Rep]
 class KoauthFilter() extends SimpleFilter[HttpRequest, HttpResponse] {
 
   private implicit val ec = ExecutionContext.Implicits.global
-  private implicit val persistence: Persistence = new InMemoryPersistence()
+  private implicit val persistence: Persistence = new ExampleMemoryPersistence()
   private val oauthService = ProviderServiceFactory.createDefaultOauthService
 
   def apply(request: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] = {

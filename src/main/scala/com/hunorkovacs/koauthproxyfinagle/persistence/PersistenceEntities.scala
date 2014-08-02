@@ -1,4 +1,4 @@
-package com.hunorkovacs.koauthproxyfinagle
+package com.hunorkovacs.koauthproxyfinagle.persistence
 
 import java.util.Date
 
@@ -8,11 +8,11 @@ case class Consumer(consumerKey: String,
                     ownerUsername: String)
 
 case class RequestToken(consumerKey: String,
-                       requestToken: String,
-                       requestTokenSecret: String,
-                       callback: String,
-                       verifierUsername: Option[String],
-                       verifier: Option[String])
+                        requestToken: String,
+                        requestTokenSecret: String,
+                        callback: String,
+                        verifierUsername: Option[String],
+                        verifier: Option[String])
 
 case class AccessToken(consumerKey: String,
                        accessToken: String,
@@ -23,3 +23,6 @@ case class Nonce(nonce: String,
                  time: Date,
                  consumerKey: String,
                  token: String)
+
+case class User(username: String,
+                password: String)

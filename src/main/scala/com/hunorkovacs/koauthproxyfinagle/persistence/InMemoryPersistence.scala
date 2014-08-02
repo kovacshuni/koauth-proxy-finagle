@@ -13,9 +13,17 @@ class InMemoryPersistence(implicit val ec: ExecutionContext) extends Persistence
     Consumer("OmFjJKNqU4v791CWj6QKaBaiEep0WBxJ", "wr1KLYYH6o5yKFfiyN9ysKkPXcIAim2S", 0, "admin")
   )
 
-  val requestTokens = ListBuffer[RequestToken]()
+  val requestTokens = ListBuffer[RequestToken](
+    RequestToken("OmFjJKNqU4v791CWj6QKaBaiEep0WBxJ", "nHmH9Qv6vPhZuvLVfofIXoKqpKA6BcSq",
+      "S6o9gbm6l6yyR3kcry9kzj40C6mhErmu", "oob", None, None),
+    RequestToken("OmFjJKNqU4v791CWj6QKaBaiEep0WBxJ", "DGnMlgdnCxc5ur3ZYX5t1BSjUOJUyqfZ",
+      "y6v2ZtztCLH9Yewoeb4NoIXRmWlb74xV", "oob", Some("admin"), Some("W8FMcCtnDZ1Gw1m4"))
+  )
 
-  val accessTokens = ListBuffer[AccessToken]()
+  val accessTokens = ListBuffer[AccessToken](
+    AccessToken("OmFjJKNqU4v791CWj6QKaBaiEep0WBxJ", "NDW4H8pFTthDV7kmSkdyYDmiBspabYEW",
+      "e3lqNSPq1hU6v7FFnq6p6die6pFIYJU0", "admin")
+  )
 
   val nonces = ListBuffer[Nonce]()
 

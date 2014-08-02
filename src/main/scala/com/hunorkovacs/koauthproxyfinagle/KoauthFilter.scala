@@ -1,7 +1,6 @@
 package com.hunorkovacs.koauthproxyfinagle
 
 import com.hunorkovacs.koauth.service.provider.{ProviderServiceFactory, Persistence}
-import com.hunorkovacs.koauthproxyfinagle.TheRequestMapper._
 import com.hunorkovacs.koauthproxyfinagle.persistence.InMemoryPersistence
 import com.twitter.finagle.{Service, Filter}
 import com.twitter.util.{Promise, Future}
@@ -18,15 +17,16 @@ class KoauthFilter() extends SimpleFilter[HttpRequest, HttpResponse] {
   private val oauthService = ProviderServiceFactory.createDefaultOauthService
 
   def apply(request: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] = {
-    val eitherSF = map(request)
+    val eitherSF = NettyRequestMapper.map(request)
       .flatMap(oauthService.oauthenticate)
     val eitherF = scalaFuturetoTwitterFuture(eitherSF)
 
     eitherF flatMap {
       case Left(nok) =>
-        service(request)
+        val nettyResponseSF = NettyResponseMapper.map(nok)
+        scalaFuturetoTwitterFuture(nettyResponseSF)
       case Right(username) =>
-        request.addHeader("x-authorized", username)
+        request.addHeader("x-authenticated", username)
         service(request)
     }
   }

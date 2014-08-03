@@ -1,10 +1,8 @@
 package com.hunorkovacs.koauthproxyfinagle.persistence
 
-import akka.util.Timeout
 import com.hunorkovacs.koauth.service.Generator.{generateNonce, generateTokenAndSecret}
 import com.hunorkovacs.koauth.service.provider.persistence.Persistence
 import scala.concurrent.blocking
-import scala.concurrent.duration._
 import org.specs2.mutable._
 
 abstract class PersistenceSpec(val pers: Persistence) extends Specification {

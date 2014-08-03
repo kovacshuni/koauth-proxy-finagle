@@ -114,8 +114,11 @@ class DynamoDBPersistence(val ec: ExecutionContext) extends Persistence {
         .withConsistentRead(true)
       val item = client.getItem(request).getItem
       if (item != null) {
-        if (verifier.equals(item.asScala(RequestTokenAttrVerifier).getS))
-          Some(item.asScala(RequestTokenAttrVerifierUsername).getS)
+        val sItem = item.asScala
+        if (sItem.isDefinedAt(RequestTokenAttrVerifier)
+          && verifier.equals(sItem(RequestTokenAttrVerifier).getS)) {
+          Some(sItem(RequestTokenAttrVerifierUsername).getS)
+        }
         else None
       }
       else None

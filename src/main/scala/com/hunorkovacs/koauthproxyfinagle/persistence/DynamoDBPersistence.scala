@@ -69,7 +69,7 @@ class DynamoDBPersistence(val ec: ExecutionContext) extends Persistence {
                                 (implicit ec: ExecutionContext): Future[Option[String]] = ???
 
   override def getUsername(consumerKey: String, accessToken: String)
-                          (implicit ec: ExecutionContext): Future[String] = ???
+                          (implicit ec: ExecutionContext): Future[Option[String]] = ???
 
   override def getRequestTokenSecret(consumerKey: String, requestToken: String)
                                     (implicit ec: ExecutionContext): Future[Option[String]] = ???

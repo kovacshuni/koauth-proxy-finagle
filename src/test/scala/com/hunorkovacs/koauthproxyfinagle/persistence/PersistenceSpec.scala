@@ -2,7 +2,9 @@ package com.hunorkovacs.koauthproxyfinagle.persistence
 
 import com.hunorkovacs.koauth.service.Generator.{generateNonce, generateTokenAndSecret}
 import com.hunorkovacs.koauth.service.provider.persistence.Persistence
-import scala.concurrent.blocking
+import scala.concurrent.Await.ready
+import scala.concurrent.duration._
+import scala.concurrent.Await
 import org.specs2.mutable._
 
 abstract class PersistenceSpec(val pers: Persistence) extends Specification {
@@ -11,17 +13,15 @@ abstract class PersistenceSpec(val pers: Persistence) extends Specification {
     "return true if it was persisted before." in {
       val (nonce, consumerKey, token) = generateForNonce
 
-      pers.persistNonce(nonce, consumerKey, token)
+      ready(pers.persistNonce(nonce, consumerKey, token), 1.0 second)
 
-      blocking(Thread.sleep(2000))
       pers.nonceExists(nonce, consumerKey, token) must beEqualTo(true).await
     }
     "return false if it was not persisted before." in {
       val (nonce, consumerKey, token) = generateForNonce
 
-      pers.persistNonce(nonce, consumerKey, token)
+      Await.ready(pers.persistNonce(nonce, consumerKey, token), 1.0 second)
 
-      blocking(Thread.sleep(2000))
       pers.nonceExists(generateNonce, consumerKey, token) must beEqualTo(false).await
     }
   }

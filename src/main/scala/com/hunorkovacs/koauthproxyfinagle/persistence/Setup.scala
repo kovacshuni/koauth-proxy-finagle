@@ -24,7 +24,7 @@ object Setup extends App {
 
   insertDefaultConsumers()
   insertDefaultUsers()
-  val pers = new DynamoDBPersistence(ExecutionContext.Implicits.global)
+  val pers = new DynamoDBPersistence(client, ExecutionContext.Implicits.global)
   ready(pers.persistRequestToken("OmFjJKNqU4v791CWj6QKaBaiEep0WBxJ", "nHmH9Qv6vPhZuvLVfofIXoKqpKA6BcSq",
     "S6o9gbm6l6yyR3kcry9kzj40C6mhErmu", "oob"), 1.0 second)
   ready(pers.persistRequestToken("OmFjJKNqU4v791CWj6QKaBaiEep0WBxJ", "DGnMlgdnCxc5ur3ZYX5t1BSjUOJUyqfZ",
@@ -112,7 +112,7 @@ object Setup extends App {
   private def createClient = {
     val credentials = new ProfileCredentialsProvider().getCredentials
     val client1 = new AmazonDynamoDBClient(credentials)
-    client1.setEndpoint("http://localhost:8000")
+//    client1.setEndpoint("http://localhost:8000")
     client1
   }
 }

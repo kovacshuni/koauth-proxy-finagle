@@ -1,6 +1,5 @@
 package com.hunorkovacs.koauthproxyfinagle.persistence
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.model.AttributeAction.PUT
 import com.amazonaws.services.dynamodbv2.model._
@@ -10,16 +9,8 @@ import scala.collection.JavaConverters._
 
 import scala.concurrent.{Future, ExecutionContext}
 
-class DynamoDBPersistence(val ec: ExecutionContext) extends Persistence {
-
-  private val client = createClient
-
-  private def createClient = {
-    val credentials = new ProfileCredentialsProvider().getCredentials
-    val client1 = new AmazonDynamoDBClient(credentials)
-    client1.setEndpoint("http://localhost:8000")
-    client1
-  }
+class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
+                          private val ec: ExecutionContext) extends Persistence {
 
   override def nonceExists(nonce: String, consumerKey: String, token: String)
                           (implicit ec: ExecutionContext): Future[Boolean] = {

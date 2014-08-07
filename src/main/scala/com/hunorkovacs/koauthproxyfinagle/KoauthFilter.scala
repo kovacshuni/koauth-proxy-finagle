@@ -1,8 +1,10 @@
 package com.hunorkovacs.koauthproxyfinagle
 
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.hunorkovacs.koauth.domain.{ResponseBadRequest, ResponseUnauthorized}
-import com.hunorkovacs.koauth.service.provider.persistence.{Persistence, ExampleMemoryPersistence}
 import com.hunorkovacs.koauth.service.provider.ProviderServiceFactory
+import com.hunorkovacs.koauth.service.provider.persistence.Persistence
 import com.hunorkovacs.koauthproxyfinagle.persistence.DynamoDBPersistence
 import com.twitter.finagle.{Service, Filter}
 import com.twitter.util.{Promise, Future}
@@ -13,7 +15,7 @@ import scala.concurrent.ExecutionContext
 
 trait SimpleFilter[Req, Rep] extends Filter[Req, Rep, Req, Rep]
 
-class KoauthFilter() extends SimpleFilter[HttpRequest, HttpResponse] {
+class KoauthFilter(private val persistence: Persistence) extends SimpleFilter[HttpRequest, HttpResponse] {
 
   private val HeaderAuthenticated = "x-authenticated"
   private val HeaderAuthenticatedMethod = "x-authentication-method"
@@ -24,7 +26,7 @@ class KoauthFilter() extends SimpleFilter[HttpRequest, HttpResponse] {
   private val BadRequest = BAD_REQUEST.getCode
 
   private implicit val ec = ExecutionContext.Implicits.global
-  private implicit val persistence: Persistence = new DynamoDBPersistence(ec)
+  private implicit val implicitPers = persistence
   private val oauthService = ProviderServiceFactory.createDefaultOauthService
 
   def apply(request: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] = {

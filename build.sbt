@@ -16,5 +16,6 @@ libraryDependencies ++= Seq(
   "com.hunorkovacs" %% "koauth" % "1.0-SNAPSHOT",
   "com.twitter" %% "finagle-http" % "6.2.0",
   "com.amazonaws" % "aws-java-sdk" % "1.8.7",
-  "org.specs2" %% "specs2" % "2.3.12" % "test"
+  "org.specs2" %% "specs2" % "2.3.12" % "test",
+  "redis.clients" % "jedis" % "2.5.1"
 )

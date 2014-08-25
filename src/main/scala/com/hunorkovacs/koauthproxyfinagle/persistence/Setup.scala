@@ -16,7 +16,6 @@ object Setup extends App {
 
   private val client = createClient
 
-  createTableNonce()
   createTableConsumer()
   createTableRequestToken()
   createTableAccessToken()
@@ -33,19 +32,6 @@ object Setup extends App {
     "admin", "W8FMcCtnDZ1Gw1m4"), 1.0 second)
   ready(pers.persistAccessToken("OmFjJKNqU4v791CWj6QKaBaiEep0WBxJ", "NDW4H8pFTthDV7kmSkdyYDmiBspabYEW",
     "e3lqNSPq1hU6v7FFnq6p6die6pFIYJU0", "admin"), 1.0 second)
-
-  private def createTableNonce() = {
-    val attributeDefinitions= List(new AttributeDefinition(NoncesAttrId, "S")).asJava
-    val keySchemaElements = List(new KeySchemaElement(NoncesAttrId, HASH)).asJava
-    val provisionedThroughput = new ProvisionedThroughput(10L, 5L)
-    val request = new CreateTableRequest()
-      .withTableName(NoncesTable)
-      .withAttributeDefinitions(attributeDefinitions)
-      .withKeySchema(keySchemaElements)
-      .withProvisionedThroughput(provisionedThroughput)
-
-    client.createTable(request)
-  }
 
   private def createTableConsumer() = {
     val attributeDefinitions= List(new AttributeDefinition(ConsumerAttrConsumerKey, "S")).asJava
@@ -112,7 +98,7 @@ object Setup extends App {
   private def createClient = {
     val credentials = new ProfileCredentialsProvider().getCredentials
     val client1 = new AmazonDynamoDBClient(credentials)
-//    client1.setEndpoint("http://localhost:8000")
+    client1.setEndpoint("http://localhost:8000")
     client1
   }
 }

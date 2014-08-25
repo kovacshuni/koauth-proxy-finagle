@@ -3,29 +3,15 @@ package com.hunorkovacs.koauthproxyfinagle.persistence
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.model.AttributeAction.PUT
 import com.amazonaws.services.dynamodbv2.model._
-import com.hunorkovacs.koauth.service.provider.persistence.Persistence
 import com.hunorkovacs.koauthproxyfinagle.persistence.DynamoDBPersistence._
 import scala.collection.JavaConverters._
 
 import scala.concurrent.{Future, ExecutionContext}
 
 class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
-                          private val ec: ExecutionContext) extends Persistence {
+                          private val ec: ExecutionContext) {
 
-  override def nonceExists(nonce: String, consumerKey: String, token: String)
-                          (implicit ec: ExecutionContext): Future[Boolean] = {
-    Future {
-      val id = new StringBuilder(nonce).append(consumerKey).append(token).mkString
-      val key = Map(NoncesAttrId -> new AttributeValue(id)).asJava
-      val attributesToGet = List(NoncesAttrId).asJava
-      val request = new GetItemRequest(NoncesTable, key)
-        .withAttributesToGet(attributesToGet)
-        .withConsistentRead(true)
-      client.getItem(request).getItem != null
-    }
-  }
-
-  override def authorizeRequestToken(consumerKey: String, requestToken: String, verifierUsername: String, verifier: String)
+  def authorizeRequestToken(consumerKey: String, requestToken: String, verifierUsername: String, verifier: String)
                                     (implicit ec: ExecutionContext): Future[Unit] = {
     Future {
       val id = new StringBuilder(consumerKey).append(requestToken).mkString
@@ -38,21 +24,7 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
     }
   }
 
-  override def persistNonce(nonce: String, consumerKey: String, token: String)
-                           (implicit ec: ExecutionContext): Future[Unit] = {
-    Future {
-      val id = new StringBuilder(nonce).append(consumerKey).append(token).mkString
-      val timestamp = (System.currentTimeMillis / 1000).toString
-      val item = Map(NoncesAttrId -> new AttributeValue(id),
-        NoncesAttrTimestamp -> new AttributeValue().withN(timestamp)
-      ).asJava
-      val request = new PutItemRequest(NoncesTable, item)
-      client.putItem(request)
-      Unit
-    }
-  }
-
-  override def authenticate(username: String, password: String)
+  def authenticate(username: String, password: String)
                            (implicit ec: ExecutionContext): Future[Boolean] = {
     Future {
       val key = Map(UserAttrUsername -> new AttributeValue(username)).asJava
@@ -65,7 +37,7 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
     }
   }
 
-  override def getAccessTokenSecret(consumerKey: String, accessToken: String)
+  def getAccessTokenSecret(consumerKey: String, accessToken: String)
                                    (implicit ec: ExecutionContext): Future[Option[String]] = {
     Future {
       val id = new StringBuilder(consumerKey).append(accessToken).mkString
@@ -80,7 +52,7 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
     }
   }
 
-  override def persistAccessToken(consumerKey: String, accessToken: String, accessTokenSecret: String, username: String)
+  def persistAccessToken(consumerKey: String, accessToken: String, accessTokenSecret: String, username: String)
                                  (implicit ec: ExecutionContext): Future[Unit] = {
     Future {
       val id = new StringBuilder(consumerKey).append(accessToken).mkString
@@ -94,7 +66,7 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
     }
   }
 
-  override def whoAuthorizedRequestToken(consumerKey: String, requestToken: String, verifier: String)
+  def whoAuthorizedRequestToken(consumerKey: String, requestToken: String, verifier: String)
                                         (implicit ec: ExecutionContext): Future[Option[String]] = {
     Future {
       val id = new StringBuilder(consumerKey).append(requestToken).mkString
@@ -116,7 +88,7 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
     }
   }
 
-  override def persistRequestToken(consumerKey: String, requestToken: String, requestTokenSecret: String, callback: String)
+  def persistRequestToken(consumerKey: String, requestToken: String, requestTokenSecret: String, callback: String)
                                   (implicit ec: ExecutionContext): Future[Unit] = {
     Future {
       val id = new StringBuilder(consumerKey).append(requestToken).mkString
@@ -130,7 +102,7 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
     }
   }
 
-  override def getConsumerSecret(consumerKey: String)
+  def getConsumerSecret(consumerKey: String)
                                 (implicit ec: ExecutionContext): Future[Option[String]] = {
     Future {
       val key = Map(ConsumerAttrConsumerKey -> new AttributeValue(consumerKey)).asJava
@@ -144,7 +116,7 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
     }
   }
 
-  override def getUsername(consumerKey: String, accessToken: String)
+  def getUsername(consumerKey: String, accessToken: String)
                           (implicit ec: ExecutionContext): Future[Option[String]] = {
     Future {
       val id = new StringBuilder(consumerKey).append(accessToken).mkString
@@ -159,7 +131,7 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
     }
   }
 
-  override def getRequestTokenSecret(consumerKey: String, requestToken: String)
+  def getRequestTokenSecret(consumerKey: String, requestToken: String)
                                     (implicit ec: ExecutionContext): Future[Option[String]] = {
     Future {
       val id = new StringBuilder(consumerKey).append(requestToken).mkString
@@ -176,9 +148,6 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
 }
 
 object DynamoDBPersistence {
-  val NoncesTable = "Oauth1Nonce"
-  val NoncesAttrId = "Id"
-  val NoncesAttrTimestamp = "Timestamp"
   val ConsumerTable = "Oauth1Consumer"
   val ConsumerAttrConsumerKey = "ConsumerKey"
   val ConsumerAttrConsumerSecret = "ConsumerSecret"

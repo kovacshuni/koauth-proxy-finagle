@@ -5,7 +5,7 @@ import spray.caching.LruCache
 import scala.concurrent.duration._
 import scala.concurrent.{Future, ExecutionContext}
 
-class AccessTokenCache(private val dynamoDB: DynamoDBPersistence,
+class AccessTokenCache(private val hardPersistence: HardPersistence,
                        private val ec: ExecutionContext) {
 
   val consumerSecretCache = LruCache[Option[String]](maxCapacity = 10000,
@@ -23,17 +23,17 @@ class AccessTokenCache(private val dynamoDB: DynamoDBPersistence,
 
   def getConsumerSecret(consumerKey: String)
                        (implicit ec: ExecutionContext): Future[Option[String]] =
-    consumerSecretCache(consumerKey, () => dynamoDB.getConsumerSecret(consumerKey))
+    consumerSecretCache(consumerKey, () => hardPersistence.getConsumerSecret(consumerKey))
 
   def getAccessTokenSecret(consumerKey: String, accessToken: String)
                           (implicit ec: ExecutionContext): Future[Option[String]] = {
     val key = StringBuilder.newBuilder.append(consumerKey).append(accessToken).mkString
-    accessTokenSecretCache(key, () => dynamoDB.getAccessTokenSecret(consumerKey, accessToken))
+    accessTokenSecretCache(key, () => hardPersistence.getAccessTokenSecret(consumerKey, accessToken))
   }
 
   def getUsername(consumerKey: String, accessToken: String)
                  (implicit ec: ExecutionContext): Future[Option[String]] = {
     val key = StringBuilder.newBuilder.append(consumerKey).append(accessToken).mkString
-    usernameCache(key, () => dynamoDB.getUsername(consumerKey, accessToken))
+    usernameCache(key, () => hardPersistence.getUsername(consumerKey, accessToken))
   }
 }

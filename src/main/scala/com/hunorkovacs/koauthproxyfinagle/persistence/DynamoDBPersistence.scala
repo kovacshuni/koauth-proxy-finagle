@@ -9,7 +9,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.{Future, ExecutionContext}
 
 class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
-                          private val ec: ExecutionContext) {
+                          private val ec: ExecutionContext) extends HardPersistence {
 
   def authorizeRequestToken(consumerKey: String, requestToken: String, verifierUsername: String, verifier: String)
                                     (implicit ec: ExecutionContext): Future[Unit] = {
@@ -34,35 +34,6 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
       val item = client.getItem(request).getItem
       if (item != null) password.equals(item.asScala(UserAttrPassword).getS)
       else false
-    }
-  }
-
-  def getAccessTokenSecret(consumerKey: String, accessToken: String)
-                                   (implicit ec: ExecutionContext): Future[Option[String]] = {
-    Future {
-      val id = new StringBuilder(consumerKey).append(accessToken).mkString
-      val key = Map(AccessTokenAttrId -> new AttributeValue(id)).asJava
-      val attributesToGet = List(AccessTokenAttrAccessTokenSecret).asJava
-      val request = new GetItemRequest(AccessTokenTable, key)
-        .withAttributesToGet(attributesToGet)
-        .withConsistentRead(true)
-      val item = client.getItem(request).getItem
-      if (item != null) Some(item.asScala(AccessTokenAttrAccessTokenSecret).getS)
-      else None
-    }
-  }
-
-  def persistAccessToken(consumerKey: String, accessToken: String, accessTokenSecret: String, username: String)
-                                 (implicit ec: ExecutionContext): Future[Unit] = {
-    Future {
-      val id = new StringBuilder(consumerKey).append(accessToken).mkString
-      val item = Map(AccessTokenAttrId -> new AttributeValue(id),
-        AccessTokenAttrAccessTokenSecret -> new AttributeValue(accessTokenSecret),
-        AccessTokenAttrUsername -> new AttributeValue(username)
-      ).asJava
-      val request = new PutItemRequest(AccessTokenTable, item)
-      client.putItem(request)
-      Unit
     }
   }
 
@@ -102,32 +73,17 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
     }
   }
 
-  def getConsumerSecret(consumerKey: String)
-                                (implicit ec: ExecutionContext): Future[Option[String]] = {
-    Future {
-      val key = Map(ConsumerAttrConsumerKey -> new AttributeValue(consumerKey)).asJava
-      val attributesToGet = List(ConsumerAttrConsumerSecret).asJava
-      val request = new GetItemRequest(ConsumerTable, key)
-        .withAttributesToGet(attributesToGet)
-        .withConsistentRead(true)
-      val item = client.getItem(request).getItem
-      if (item != null) Some(item.asScala(ConsumerAttrConsumerSecret).getS)
-      else None
-    }
-  }
-
-  def getUsername(consumerKey: String, accessToken: String)
-                          (implicit ec: ExecutionContext): Future[Option[String]] = {
+  def persistAccessToken(consumerKey: String, accessToken: String, accessTokenSecret: String, username: String)
+                                 (implicit ec: ExecutionContext): Future[Unit] = {
     Future {
       val id = new StringBuilder(consumerKey).append(accessToken).mkString
-      val key = Map(AccessTokenAttrId -> new AttributeValue(id)).asJava
-      val attributesToGet = List(AccessTokenAttrUsername).asJava
-      val request = new GetItemRequest(AccessTokenTable, key)
-        .withAttributesToGet(attributesToGet)
-        .withConsistentRead(true)
-      val item = client.getItem(request).getItem
-      if (item != null) Some(item.asScala(AccessTokenAttrUsername).getS)
-      else None
+      val item = Map(AccessTokenAttrId -> new AttributeValue(id),
+        AccessTokenAttrAccessTokenSecret -> new AttributeValue(accessTokenSecret),
+        AccessTokenAttrUsername -> new AttributeValue(username)
+      ).asJava
+      val request = new PutItemRequest(AccessTokenTable, item)
+      client.putItem(request)
+      Unit
     }
   }
 
@@ -142,6 +98,50 @@ class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
         .withConsistentRead(true)
       val item = client.getItem(request).getItem
       if (item != null) Some(item.asScala(RequestTokenAttrRequestTokenSecret).getS)
+      else None
+    }
+  }
+
+  override def getConsumerSecret(consumerKey: String)
+                                (implicit ec: ExecutionContext): Future[Option[String]] = {
+    Future {
+      val key = Map(ConsumerAttrConsumerKey -> new AttributeValue(consumerKey)).asJava
+      val attributesToGet = List(ConsumerAttrConsumerSecret).asJava
+      val request = new GetItemRequest(ConsumerTable, key)
+        .withAttributesToGet(attributesToGet)
+        .withConsistentRead(true)
+      val item = client.getItem(request).getItem
+      if (item != null) Some(item.asScala(ConsumerAttrConsumerSecret).getS)
+      else None
+    }
+  }
+
+  override def getAccessTokenSecret(consumerKey: String, accessToken: String)
+                                   (implicit ec: ExecutionContext): Future[Option[String]] = {
+    Future {
+      val id = new StringBuilder(consumerKey).append(accessToken).mkString
+      val key = Map(AccessTokenAttrId -> new AttributeValue(id)).asJava
+      val attributesToGet = List(AccessTokenAttrAccessTokenSecret).asJava
+      val request = new GetItemRequest(AccessTokenTable, key)
+        .withAttributesToGet(attributesToGet)
+        .withConsistentRead(true)
+      val item = client.getItem(request).getItem
+      if (item != null) Some(item.asScala(AccessTokenAttrAccessTokenSecret).getS)
+      else None
+    }
+  }
+
+  override def getUsername(consumerKey: String, accessToken: String)
+                 (implicit ec: ExecutionContext): Future[Option[String]] = {
+    Future {
+      val id = new StringBuilder(consumerKey).append(accessToken).mkString
+      val key = Map(AccessTokenAttrId -> new AttributeValue(id)).asJava
+      val attributesToGet = List(AccessTokenAttrUsername).asJava
+      val request = new GetItemRequest(AccessTokenTable, key)
+        .withAttributesToGet(attributesToGet)
+        .withConsistentRead(true)
+      val item = client.getItem(request).getItem
+      if (item != null) Some(item.asScala(AccessTokenAttrUsername).getS)
       else None
     }
   }

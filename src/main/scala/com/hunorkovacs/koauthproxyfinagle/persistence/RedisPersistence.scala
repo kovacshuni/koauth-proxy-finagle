@@ -1,10 +1,11 @@
 package com.hunorkovacs.koauthproxyfinagle.persistence
 
+import com.google.inject.Inject
 import redis.clients.jedis.{JedisPool, Jedis}
 
 import scala.concurrent.{Future, ExecutionContext}
 
-class RedisPersistence(private val jedisPool: JedisPool, private val ec: ExecutionContext) {
+class RedisPersistence @Inject() (private val jedisPool: JedisPool, private val ec: ExecutionContext) {
 
   private val NoncePrefix = "Nonce"
   private val Dummy = ""

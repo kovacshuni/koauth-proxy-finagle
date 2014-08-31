@@ -1,11 +1,12 @@
 package com.hunorkovacs.koauthproxyfinagle.persistence
 
+import com.google.inject.Inject
 import spray.caching.LruCache
 
 import scala.concurrent.duration._
 import scala.concurrent.{Future, ExecutionContext}
 
-class AccessTokenCache(private val hardPersistence: HardPersistence,
+class AccessTokenCache @Inject() (private val hardPersistence: HardPersistence,
                        private val ec: ExecutionContext) {
 
   val consumerSecretCache = LruCache[Option[String]](maxCapacity = 10000,

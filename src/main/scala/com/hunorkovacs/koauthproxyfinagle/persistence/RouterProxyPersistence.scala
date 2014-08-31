@@ -1,10 +1,11 @@
 package com.hunorkovacs.koauthproxyfinagle.persistence
 
+import com.google.inject.Inject
 import com.hunorkovacs.koauth.service.provider.persistence.Persistence
 
 import scala.concurrent.{Future, ExecutionContext}
 
-class RouterProxyPersistence(private val dynamoDbPers: DynamoDBPersistence,
+class RouterProxyPersistence @Inject() (private val dynamoDbPers: DynamoDBPersistence,
                              private val cachedPers: AccessTokenCache,
                              private val redisPers: RedisPersistence,
                              private val ec: ExecutionContext) extends Persistence with ProxyPersistence {

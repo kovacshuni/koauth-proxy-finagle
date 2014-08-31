@@ -2,6 +2,7 @@ package com.hunorkovacs.koauthproxyfinagle
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import com.google.inject.Inject
 import com.hunorkovacs.koauth.domain.{ResponseBadRequest, ResponseUnauthorized}
 import com.hunorkovacs.koauth.service.provider.ProviderServiceFactory
 import com.hunorkovacs.koauth.service.provider.persistence.Persistence
@@ -15,7 +16,7 @@ import scala.concurrent.ExecutionContext
 
 trait SimpleFilter[Req, Rep] extends Filter[Req, Rep, Req, Rep]
 
-class KoauthFilter(private val persistence: Persistence) extends SimpleFilter[HttpRequest, HttpResponse] {
+class KoauthFilter @Inject() (private val persistence: Persistence) extends SimpleFilter[HttpRequest, HttpResponse] {
 
   private val HeaderAuthenticated = "x-authenticated"
   private val HeaderAuthenticatedMethod = "x-authentication-method"

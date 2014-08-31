@@ -3,12 +3,13 @@ package com.hunorkovacs.koauthproxyfinagle.persistence
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.dynamodbv2.model.AttributeAction.PUT
 import com.amazonaws.services.dynamodbv2.model._
+import com.google.inject.Inject
 import com.hunorkovacs.koauthproxyfinagle.persistence.DynamoDBPersistence._
 import scala.collection.JavaConverters._
 
 import scala.concurrent.{Future, ExecutionContext}
 
-class DynamoDBPersistence(private val client: AmazonDynamoDBClient,
+class DynamoDBPersistence @Inject() (private val client: AmazonDynamoDBClient,
                           private val ec: ExecutionContext) extends HardPersistence {
 
   def authorizeRequestToken(consumerKey: String, requestToken: String, verifierUsername: String, verifier: String)

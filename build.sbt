@@ -20,5 +20,6 @@ libraryDependencies ++= Seq(
   "org.specs2" %% "specs2" % "2.3.12" % "test",
   "redis.clients" % "jedis" % "2.5.1",
   "io.spray" % "spray-caching" % "1.3.1",
-  "net.codingwell" %% "scala-guice" % "4.0.0-beta4"
+  "net.codingwell" %% "scala-guice" % "4.0.0-beta4",
+  "com.lambdaworks" % "scrypt" % "1.4.0"
 )

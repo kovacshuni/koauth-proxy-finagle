@@ -1,6 +1,6 @@
 package com.hunorkovacs.koauthproxyfinagle.persistence
 
-import com.hunorkovacs.koauth.service.Generator.generateTokenAndSecret
+import com.hunorkovacs.koauth.service.DefaultTokenGenerator.generateTokenAndSecret
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 

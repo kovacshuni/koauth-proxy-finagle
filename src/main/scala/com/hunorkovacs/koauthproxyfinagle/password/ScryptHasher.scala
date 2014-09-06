@@ -1,5 +1,6 @@
 package com.hunorkovacs.koauthproxyfinagle.password
 
+import com.google.inject.Inject
 import com.lambdaworks.crypto.SCryptUtil.{check, scrypt}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -11,7 +12,7 @@ trait PasswordHasher {
   def create(password: String): Future[String]
 }
 
-class ScryptHasher(private val ec: ExecutionContext) extends PasswordHasher {
+class ScryptHasher @Inject() (private val ec: ExecutionContext) extends PasswordHasher {
 
   private val N = 4096
   private val R = 8

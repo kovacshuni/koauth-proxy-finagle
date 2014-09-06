@@ -90,7 +90,7 @@ object Setup extends App {
 
   def insertDefaultUsers() = {
     val item = Map(UserAttrUsername -> new AttributeValue("admin"),
-      UserAttrPassword -> new AttributeValue("admin")).asJava
+      UserAttrPassword -> new AttributeValue("$s0$c0801$Hsrn3h6Q+4vE95oqJhi+iQ==$123xf7/9QPO5N8TxRgmvQ7znHIUaNUR/zGw921WShbM=")).asJava
     val request = new PutItemRequest(UserTable, item)
     client.putItem(request)
   }

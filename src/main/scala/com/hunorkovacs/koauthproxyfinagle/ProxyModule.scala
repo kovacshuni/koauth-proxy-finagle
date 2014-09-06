@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.google.inject.{Provides, AbstractModule}
 import com.hunorkovacs.koauth.service.provider.{ProviderServiceFactory, ProviderService}
 import com.hunorkovacs.koauth.service.provider.persistence.Persistence
+import com.hunorkovacs.koauthproxyfinagle.password.{ScryptHasher, PasswordHasher}
 import com.hunorkovacs.koauthproxyfinagle.persistence._
 import net.codingwell.scalaguice.ScalaModule
 import redis.clients.jedis.{JedisPoolConfig, JedisPool}
@@ -15,14 +16,11 @@ class ProxyModule extends AbstractModule with ScalaModule {
 
   override def configure() = {
     bind[ExecutionContext].toInstance(ExecutionContext.Implicits.global)
-    bind[AmazonDynamoDBClient]
-    bind[JedisPool]
     bind[DynamoDBPersistence]
     bind[HardPersistence].to[DynamoDBPersistence]
     bind[AccessTokenCache]
-    bind[RedisPersistence]
     bind[Persistence].to[RouterProxyPersistence]
-    bind[ProviderService]
+    bind[PasswordHasher].to[ScryptHasher]
     bind[KoauthFilter]
   }
 

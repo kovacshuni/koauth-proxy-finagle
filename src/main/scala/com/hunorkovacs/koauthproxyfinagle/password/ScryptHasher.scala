@@ -4,9 +4,14 @@ import com.lambdaworks.crypto.SCryptUtil.{check, scrypt}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait PasswordHasher
+trait PasswordHasher {
 
-class Hasher(private val ec: ExecutionContext) extends PasswordHasher {
+  def verify(password: String, hash: String): Future[Boolean]
+
+  def create(password: String): Future[String]
+}
+
+class ScryptHasher(private val ec: ExecutionContext) extends PasswordHasher {
 
   private val N = 4096
   private val R = 8
@@ -14,9 +19,9 @@ class Hasher(private val ec: ExecutionContext) extends PasswordHasher {
 
   implicit private val implicitEc = ec
 
-  def verify(password: String, hash: String) =
+  override def verify(password: String, hash: String) =
     Future(check(password, hash))
 
-  def create(password: String) =
+  override def create(password: String) =
     Future(scrypt(password, N, R, P))
 }

@@ -2,7 +2,8 @@ package com.hunorkovacs.koauthproxyfinagle
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-import com.google.inject.AbstractModule
+import com.google.inject.{Provides, AbstractModule}
+import com.hunorkovacs.koauth.service.provider.{ProviderServiceFactory, ProviderService}
 import com.hunorkovacs.koauth.service.provider.persistence.Persistence
 import com.hunorkovacs.koauthproxyfinagle.persistence._
 import net.codingwell.scalaguice.ScalaModule
@@ -12,19 +13,30 @@ import scala.concurrent.ExecutionContext
 
 class ProxyModule extends AbstractModule with ScalaModule {
 
-  import ProxyModule._
-
   override def configure() = {
     bind[ExecutionContext].toInstance(ExecutionContext.Implicits.global)
-    bind[AmazonDynamoDBClient].toInstance(createDynamoDBClient)
-    bind[JedisPool].toInstance(createJedisClient)
+    bind[AmazonDynamoDBClient]
+    bind[JedisPool]
     bind[DynamoDBPersistence]
     bind[HardPersistence].to[DynamoDBPersistence]
     bind[AccessTokenCache]
     bind[RedisPersistence]
     bind[Persistence].to[RouterProxyPersistence]
+    bind[ProviderService]
     bind[KoauthFilter]
   }
+
+  @Provides
+  private def createDynamoDBClient: AmazonDynamoDBClient =
+    ProxyModule.createDynamoDBClient
+
+  @Provides
+  private def createJedisClient: JedisPool =
+    ProxyModule.createJedisClient
+
+  @Provides
+  private def createProviderService(persistence: Persistence, ec: ExecutionContext) =
+    ProxyModule.createProviderService(persistence, ec)
 }
 
 object ProxyModule {
@@ -38,4 +50,7 @@ object ProxyModule {
 
   def createJedisClient: JedisPool =
     new JedisPool(new JedisPoolConfig(), "localhost")
+
+  def createProviderService(persistence: Persistence, ec: ExecutionContext) =
+    ProviderServiceFactory.createProviderService(persistence, ec)
 }

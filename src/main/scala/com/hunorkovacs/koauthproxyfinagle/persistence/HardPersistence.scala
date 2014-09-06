@@ -1,15 +1,12 @@
 package com.hunorkovacs.koauthproxyfinagle.persistence
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.Future
 
 trait HardPersistence {
 
-  def getConsumerSecret(consumerKey: String)
-                       (implicit ec: ExecutionContext): Future[Option[String]]
+  def getConsumerSecret(consumerKey: String): Future[Option[String]]
 
-  def getAccessTokenSecret(consumerKey: String, accessToken: String)
-                          (implicit ec: ExecutionContext): Future[Option[String]]
+  def getAccessTokenSecret(consumerKey: String, accessToken: String): Future[Option[String]]
 
-  def getUsername(consumerKey: String, accessToken: String)
-                 (implicit ec: ExecutionContext): Future[Option[String]]
+  def getUsername(consumerKey: String, accessToken: String): Future[Option[String]]
 }

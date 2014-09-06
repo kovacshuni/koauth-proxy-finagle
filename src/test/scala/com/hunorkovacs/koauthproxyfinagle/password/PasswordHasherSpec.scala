@@ -7,7 +7,7 @@ import scala.concurrent.ExecutionContext
 class PasswordHasherSpec extends Specification {
 
   private val ec = ExecutionContext.Implicits.global
-  private val hasher = new Hasher(ec)
+  private val hasher = new ScryptHasher(ec)
 
   "Verifying the hash of a password" should {
     "return true if hash is correct." in {

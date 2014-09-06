@@ -12,8 +12,10 @@ import scala.concurrent.{Future, ExecutionContext}
 class DynamoDBPersistence @Inject() (private val client: AmazonDynamoDBClient,
                           private val ec: ExecutionContext) extends HardPersistence {
 
-  def authorizeRequestToken(consumerKey: String, requestToken: String, verifierUsername: String, verifier: String)
-                                    (implicit ec: ExecutionContext): Future[Unit] = {
+  implicit private val implicitEc = ec
+
+  def authorizeRequestToken(consumerKey: String, requestToken: String, verifierUsername: String,
+                            verifier: String): Future[Unit] = {
     Future {
       val id = new StringBuilder(consumerKey).append(requestToken).mkString
       val key = Map(RequestTokenAttrId -> new AttributeValue(id)).asJava
@@ -25,21 +27,19 @@ class DynamoDBPersistence @Inject() (private val client: AmazonDynamoDBClient,
     }
   }
 
-  def authenticate(username: String, password: String)
-                           (implicit ec: ExecutionContext): Future[Boolean] = {
+  def getPassword(username: String): Future[Option[String]] = {
     Future {
       val key = Map(UserAttrUsername -> new AttributeValue(username)).asJava
       val attributesToGet = List(UserAttrPassword).asJava
       val request = new GetItemRequest(UserTable, key)
         .withAttributesToGet(attributesToGet)
       val item = client.getItem(request).getItem
-      if (item != null) password.equals(item.asScala(UserAttrPassword).getS)
-      else false
+      if (item != null) Some(item.asScala(UserAttrPassword).getS)
+      else None
     }
   }
 
-  def whoAuthorizedRequestToken(consumerKey: String, requestToken: String, verifier: String)
-                                        (implicit ec: ExecutionContext): Future[Option[String]] = {
+  def whoAuthorizedRequestToken(consumerKey: String, requestToken: String, verifier: String): Future[Option[String]] = {
     Future {
       val id = new StringBuilder(consumerKey).append(requestToken).mkString
       val key = Map(RequestTokenAttrId -> new AttributeValue(id)).asJava
@@ -60,8 +60,8 @@ class DynamoDBPersistence @Inject() (private val client: AmazonDynamoDBClient,
     }
   }
 
-  def persistRequestToken(consumerKey: String, requestToken: String, requestTokenSecret: String, callback: String)
-                                  (implicit ec: ExecutionContext): Future[Unit] = {
+  def persistRequestToken(consumerKey: String, requestToken: String, requestTokenSecret: String,
+                          callback: String): Future[Unit] = {
     Future {
       val id = new StringBuilder(consumerKey).append(requestToken).mkString
       val item = Map(RequestTokenAttrId -> new AttributeValue(id),
@@ -74,8 +74,8 @@ class DynamoDBPersistence @Inject() (private val client: AmazonDynamoDBClient,
     }
   }
 
-  def persistAccessToken(consumerKey: String, accessToken: String, accessTokenSecret: String, username: String)
-                                 (implicit ec: ExecutionContext): Future[Unit] = {
+  def persistAccessToken(consumerKey: String, accessToken: String, accessTokenSecret: String,
+                         username: String): Future[Unit] = {
     Future {
       val id = new StringBuilder(consumerKey).append(accessToken).mkString
       val item = Map(AccessTokenAttrId -> new AttributeValue(id),
@@ -88,8 +88,7 @@ class DynamoDBPersistence @Inject() (private val client: AmazonDynamoDBClient,
     }
   }
 
-  def getRequestTokenSecret(consumerKey: String, requestToken: String)
-                                    (implicit ec: ExecutionContext): Future[Option[String]] = {
+  def getRequestTokenSecret(consumerKey: String, requestToken: String): Future[Option[String]] = {
     Future {
       val id = new StringBuilder(consumerKey).append(requestToken).mkString
       val key = Map(RequestTokenAttrId -> new AttributeValue(id)).asJava
@@ -103,8 +102,7 @@ class DynamoDBPersistence @Inject() (private val client: AmazonDynamoDBClient,
     }
   }
 
-  override def getConsumerSecret(consumerKey: String)
-                                (implicit ec: ExecutionContext): Future[Option[String]] = {
+  override def getConsumerSecret(consumerKey: String): Future[Option[String]] = {
     Future {
       val key = Map(ConsumerAttrConsumerKey -> new AttributeValue(consumerKey)).asJava
       val attributesToGet = List(ConsumerAttrConsumerSecret).asJava
@@ -117,8 +115,7 @@ class DynamoDBPersistence @Inject() (private val client: AmazonDynamoDBClient,
     }
   }
 
-  override def getAccessTokenSecret(consumerKey: String, accessToken: String)
-                                   (implicit ec: ExecutionContext): Future[Option[String]] = {
+  override def getAccessTokenSecret(consumerKey: String, accessToken: String): Future[Option[String]] = {
     Future {
       val id = new StringBuilder(consumerKey).append(accessToken).mkString
       val key = Map(AccessTokenAttrId -> new AttributeValue(id)).asJava
@@ -132,8 +129,7 @@ class DynamoDBPersistence @Inject() (private val client: AmazonDynamoDBClient,
     }
   }
 
-  override def getUsername(consumerKey: String, accessToken: String)
-                 (implicit ec: ExecutionContext): Future[Option[String]] = {
+  override def getUsername(consumerKey: String, accessToken: String): Future[Option[String]] = {
     Future {
       val id = new StringBuilder(consumerKey).append(accessToken).mkString
       val key = Map(AccessTokenAttrId -> new AttributeValue(id)).asJava

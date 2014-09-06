@@ -1,6 +1,7 @@
 package com.hunorkovacs.koauthproxyfinagle
 
 import com.google.inject.Inject
+import com.hunorkovacs.koauth.domain.mapper.RequestMapper
 import com.hunorkovacs.koauth.domain.{ResponseBadRequest, ResponseUnauthorized}
 import com.hunorkovacs.koauth.service.provider.{ProviderService, ProviderServiceFactory}
 import com.hunorkovacs.koauth.service.provider.persistence.Persistence
@@ -13,8 +14,10 @@ import scala.concurrent.ExecutionContext
 
 trait SimpleFilter[Req, Rep] extends Filter[Req, Rep, Req, Rep]
 
-class KoauthFilter @Inject() (private val oauthService: ProviderService,
-                              private val persistence: Persistence) extends SimpleFilter[HttpRequest, HttpResponse] {
+class KoauthFilter @Inject() (private val mapper: RequestMapper[HttpRequest],
+                              private val oauthService: ProviderService,
+                              private val persistence: Persistence,
+                              private val ec: ExecutionContext) extends SimpleFilter[HttpRequest, HttpResponse] {
 
   private val HeaderAuthenticated = "x-authenticated"
   private val HeaderAuthenticatedMethod = "x-authentication-method"
@@ -24,11 +27,11 @@ class KoauthFilter @Inject() (private val oauthService: ProviderService,
   private val Unauthorized = UNAUTHORIZED.getCode
   private val BadRequest = BAD_REQUEST.getCode
 
-  private implicit val ec = ExecutionContext.Implicits.global
+  private implicit val implicitEc = ec
   private implicit val implicitPers = persistence
 
   def apply(request: HttpRequest, service: Service[HttpRequest, HttpResponse]): Future[HttpResponse] = {
-    val eitherSF = NettyRequestMapper.map(request)
+    val eitherSF = mapper.map(request)
       .flatMap(oauthService.oauthenticate)
 
     scalaFuturetoTwitterFuture(eitherSF) flatMap {

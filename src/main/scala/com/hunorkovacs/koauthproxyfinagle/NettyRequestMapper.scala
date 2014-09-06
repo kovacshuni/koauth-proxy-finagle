@@ -1,5 +1,6 @@
 package com.hunorkovacs.koauthproxyfinagle
 
+import com.google.inject.Inject
 import com.hunorkovacs.koauth.domain.KoauthRequest
 import com.hunorkovacs.koauth.domain.mapper.RequestMapper
 import org.jboss.netty.handler.codec.http.{QueryStringDecoder, HttpHeaders, HttpRequest}
@@ -7,10 +8,11 @@ import scala.collection.JavaConverters._
 
 import scala.concurrent.{Future, ExecutionContext}
 
-object NettyRequestMapper extends RequestMapper[HttpRequest] {
+class NettyRequestMapper @Inject() (private val ec: ExecutionContext) extends RequestMapper[HttpRequest] {
 
-  override def map(source: HttpRequest)
-                  (implicit ec: ExecutionContext): Future[KoauthRequest] = {
+  implicit private val implicitEc = ec
+
+  override def map(source: HttpRequest): Future[KoauthRequest] = {
     Future {
       val method = source.getMethod.getName
       val queryStringDecoder = new QueryStringDecoder(source.getUri)

@@ -21,6 +21,7 @@ class ProxyModule extends AbstractModule with ScalaModule {
     bind[AccessTokenCache]
     bind[Persistence].to[RouterProxyPersistence]
     bind[PasswordHasher].to[ScryptHasher]
+    bind[NettyRequestMapper]
     bind[KoauthFilter]
   }
 

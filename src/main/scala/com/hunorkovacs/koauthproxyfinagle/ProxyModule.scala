@@ -12,6 +12,8 @@ import scala.concurrent.ExecutionContext
 
 class ProxyModule extends AbstractModule with ScalaModule {
 
+  import ProxyModule._
+
   override def configure() = {
     bind[ExecutionContext].toInstance(ExecutionContext.Implicits.global)
     bind[AmazonDynamoDBClient].toInstance(createDynamoDBClient)
@@ -23,6 +25,9 @@ class ProxyModule extends AbstractModule with ScalaModule {
     bind[Persistence].to[RouterProxyPersistence]
     bind[KoauthFilter]
   }
+}
+
+object ProxyModule {
 
   def createDynamoDBClient: AmazonDynamoDBClient = {
     val credentials = new ProfileCredentialsProvider().getCredentials

@@ -1,5 +1,6 @@
 package com.hunorkovacs.koauthproxyfinagle.password
 
+import com.lambdaworks.crypto.SCryptUtil
 import com.lambdaworks.crypto.SCryptUtil.{check, scrypt}
 
 import scala.concurrent.{ExecutionContext, Future}

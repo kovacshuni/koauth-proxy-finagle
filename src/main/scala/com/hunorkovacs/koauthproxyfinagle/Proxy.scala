@@ -1,14 +1,9 @@
 package com.hunorkovacs.koauthproxyfinagle
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-import com.google.inject.Guice
 import com.google.inject.Guice.createInjector
-import com.hunorkovacs.koauthproxyfinagle.persistence.{AccessTokenCache, RedisPersistence, RouterProxyPersistence, DynamoDBPersistence}
 import com.twitter.finagle.{Http, Service}
 import com.twitter.util.Await
 import org.jboss.netty.handler.codec.http._
-import redis.clients.jedis.{JedisPoolConfig, JedisPool, Jedis}
 
 import scala.concurrent.ExecutionContext
 

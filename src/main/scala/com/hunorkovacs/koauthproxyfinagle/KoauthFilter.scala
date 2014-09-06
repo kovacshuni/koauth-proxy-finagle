@@ -1,12 +1,9 @@
 package com.hunorkovacs.koauthproxyfinagle
 
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.google.inject.Inject
 import com.hunorkovacs.koauth.domain.{ResponseBadRequest, ResponseUnauthorized}
 import com.hunorkovacs.koauth.service.provider.ProviderServiceFactory
 import com.hunorkovacs.koauth.service.provider.persistence.Persistence
-import com.hunorkovacs.koauthproxyfinagle.persistence.DynamoDBPersistence
 import com.twitter.finagle.{Service, Filter}
 import com.twitter.util.{Promise, Future}
 import org.jboss.netty.handler.codec.http.{HttpResponse, HttpRequest}

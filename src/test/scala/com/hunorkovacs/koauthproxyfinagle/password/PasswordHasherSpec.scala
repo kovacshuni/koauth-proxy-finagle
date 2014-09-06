@@ -1,6 +1,5 @@
 package com.hunorkovacs.koauthproxyfinagle.password
 
-import com.lambdaworks.crypto.SCryptUtil
 import org.specs2.mutable.Specification
 
 import scala.concurrent.ExecutionContext
@@ -8,32 +7,18 @@ import scala.concurrent.ExecutionContext
 class PasswordHasherSpec extends Specification {
 
   private val ec = ExecutionContext.Implicits.global
-//  private val hasher = new Hasher(ec)
+  private val hasher = new Hasher(ec)
 
-  "password hashing" should {
-    "give correct hash" in {
-      println(System.getProperty("com.lambdaworks.jni.loader"))
-      println()
-
-//      val hasher = new Hasher(ec)
-//      hasher.checke("admin", "123") must beEqualTo(true).await
-
-      var hash = ""
-      var sum = 0l
-      val n = 100
-      for (i <- 1 to n) {
-        val timeA = System.currentTimeMillis()
-        hash = SCryptUtil.scrypt("admin", 4096, 8, 1)
-        val timeB = System.currentTimeMillis()
-        sum = sum + timeB - timeA
-      }
-      println("%1.0f" format sum.toFloat / n)
-      println()
-
-      println(hash)
-      println()
-
-      1 must beEqualTo(1)
+  "Verifying the hash of a password" should {
+    "return true if hash is correct." in {
+      hasher.verify("admin",
+        "$s0$c0801$Hsrn3h6Q+4vE95oqJhi+iQ==$d3sxf7/9QPO5N8TxRgmvQ7znHIUaNUR/zGw921WShbM=") must
+        beEqualTo(true).await
+    }
+    "return false if hash is incorrect." in {
+      hasher.verify("admin",
+        "$s0$c0801$Hsrn3h6Q+4vE95oqJhi+iQ==$123xf7/9QPO5N8TxRgmvQ7znHIUaNUR/zGw921WShbM=") must
+        beEqualTo(false).await
     }
   }
 }

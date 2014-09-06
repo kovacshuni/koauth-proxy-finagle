@@ -23,7 +23,7 @@ class PasswordHasherSpec extends Specification {
       val n = 100
       for (i <- 1 to n) {
         val timeA = System.currentTimeMillis()
-        hash = SCryptUtil.scrypt("admin", 2, 1, 1)
+        hash = SCryptUtil.scrypt("admin", 4096, 8, 1)
         val timeB = System.currentTimeMillis()
         sum = sum + timeB - timeA
       }

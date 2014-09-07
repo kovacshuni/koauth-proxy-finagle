@@ -1,9 +1,8 @@
 package com.hunorkovacs.koauthproxyfinagle
 
-import com.google.inject.Inject
 import com.hunorkovacs.koauth.domain.mapper.RequestMapper
 import com.hunorkovacs.koauth.domain.{ResponseBadRequest, ResponseUnauthorized}
-import com.hunorkovacs.koauth.service.provider.{ProviderService, ProviderServiceFactory}
+import com.hunorkovacs.koauth.service.provider.ProviderService
 import com.hunorkovacs.koauth.service.provider.persistence.Persistence
 import com.twitter.finagle.{Service, Filter}
 import com.twitter.util.{Promise, Future}
@@ -14,7 +13,7 @@ import scala.concurrent.ExecutionContext
 
 trait SimpleFilter[Req, Rep] extends Filter[Req, Rep, Req, Rep]
 
-class KoauthFilter @Inject() (private val mapper: RequestMapper[HttpRequest],
+class KoauthFilter(private val mapper: RequestMapper[HttpRequest],
                               private val oauthService: ProviderService,
                               private val persistence: Persistence,
                               private val ec: ExecutionContext) extends SimpleFilter[HttpRequest, HttpResponse] {

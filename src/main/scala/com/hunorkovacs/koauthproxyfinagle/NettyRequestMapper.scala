@@ -16,7 +16,7 @@ class NettyRequestMapper(private val ec: ExecutionContext) extends RequestMapper
       val method = source.getMethod.getName
       val queryStringDecoder = new QueryStringDecoder(source.getUri)
       val urlWithoutParams = "http://" + source.getHeader(HttpHeaders.Names.HOST) + queryStringDecoder.getPath
-      val authHeader = Option(source.getHeader(HttpHeaders.Names.AUTHORIZATION)).getOrElse("")
+      val authHeader = Option(source.getHeader(HttpHeaders.Names.AUTHORIZATION))
       val urlParams = queryStringDecoder.getParameters.asScala.mapValues(_.get(0)).toList
       val bodyParams = List.empty
 
